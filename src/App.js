@@ -39,10 +39,65 @@ function reducer(state, { type, payload }) {
         currentOperand: `${state.currentOperand || ""}${payload.digit}`,
       };
 
+    // selecting the operation
+    case ACTIONS.CHOOSE_OPERATION:
+      if (state.currentOperand == null && state.previousOperand == null) {
+        return state;
+      }
+
+      if (state.previousOperand == null) {
+        return {
+          ...state,
+          operation: payload.operation,
+          previousOperand: state.currentOperand,
+          currentOperand: null,
+        };
+      }
+
+      // default action if operand button is clicked and values are on the screen, do the operand.
+      return {
+        ...state,
+        previousOperand: evaluate(state),
+        operation: payload.operation,
+        currentOperand: null,
+      };
+
     //  Clearing the digits from the screen
     case ACTIONS.CLEAR:
       return {};
   }
+}
+
+// function to evaluate the calculation of the calculator
+function evaluate({ currentOperand, previousOperand, operation }) {
+  // converting the strings to numbers
+  const prev = parseFloat(previousOperand);
+  const current = parseFloat(currentOperand);
+
+  // checking if the values don't exist
+  if (isNaN(prev) || isNaN(current)) return "";
+
+  // getting the computed value
+  let computation = "";
+
+  // When the buttons are pushed
+  switch (operation) {
+    case "+":
+      computation = prev + current;
+      break;
+    case "-":
+      computation = prev - current;
+      break;
+    case "*":
+      computation = prev * current;
+      break;
+    case "÷":
+      computation = prev / current;
+      break;
+  }
+
+  //  return the value
+  return computation.toString();
 }
 
 function App() {
@@ -75,15 +130,22 @@ function App() {
       <DigitButton digit="1" dispatch={dispatch} />
       <DigitButton digit="2" dispatch={dispatch} />
       <DigitButton digit="3" dispatch={dispatch} />
-      <OperationButton operation="*">*</OperationButton>
+      <OperationButton operation="*" dispatch={dispatch}>
+        *
+      </OperationButton>
       <DigitButton digit="4" dispatch={dispatch} />
       <DigitButton digit="5" dispatch={dispatch} />
       <DigitButton digit="6" dispatch={dispatch} />
-      <OperationButton operation="+">+</OperationButton>
+      <OperationButton operation="+" dispatch={dispatch}>
+        +
+      </OperationButton>
       <DigitButton digit="7" dispatch={dispatch} />
       <DigitButton digit="8" dispatch={dispatch} />
       <DigitButton digit="9" dispatch={dispatch} />
-      <OperationButton operation="-"> - </OperationButton>
+      <OperationButton operation="-" dispatch={dispatch}>
+        {" "}
+        -{" "}
+      </OperationButton>
       <DigitButton digit="." dispatch={dispatch} />
       <DigitButton digit="0" dispatch={dispatch} />
       <button className="span-two"> = </button>
