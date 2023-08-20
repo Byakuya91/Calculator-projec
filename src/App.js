@@ -6,7 +6,12 @@ import { OperationButton } from "./Components/OperationButton";
 
 // TO DOS
 // 1) Code Calculator functionality(ONGOING)
-// 1A) Utilize use Reducer
+// 1A) Utilize use Reducer for the following
+//  A) IMPLEMENT ADD_DIGIT(DONE)
+//  B IMPLEMENT CHOOSE_OPERATION
+//  C) IMPLEMENT  CLEAR
+//  D) IMPLEMENT DELETE_DIGIT
+//  E) IMPLEMENT EVALUATE
 
 //  2) Create CSS style sheet and style(DONE)
 //  2A) Figure out Button layout(DONE)
@@ -25,11 +30,18 @@ export const ACTIONS = {
 // Reducer function
 function reducer(state, { type, payload }) {
   switch (type) {
+    // Adding Digits
     case ACTIONS.ADD_DIGIT:
+      if (payload.digit === "0" && state.currentOperand === "0") return state;
+      if (payload.digit === "." && state.currentOperand === ".") return state;
       return {
         ...state,
         currentOperand: `${state.currentOperand || ""}${payload.digit}`,
       };
+
+    //  Clearing the digits from the screen
+    case ACTIONS.CLEAR:
+      return {};
   }
 }
 
@@ -51,7 +63,12 @@ function App() {
         <div className="current-operand">{currentOperand} </div>
       </div>
       {/* TOP BUTTONS  */}
-      <button className="span-two">AC</button>
+      <button
+        className="span-two"
+        onClick={() => dispatch({ type: ACTIONS.CLEAR })}
+      >
+        AC
+      </button>
       <button>DEL</button>
       {/* NUMERICAL and OPERAND BUTTONS */}
       <OperationButton operation="÷" dispatch={dispatch} />
