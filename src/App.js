@@ -8,10 +8,10 @@ import { OperationButton } from "./Components/OperationButton";
 // 1) Code Calculator functionality(ONGOING)
 // 1A) Utilize use Reducer for the following
 //  A) IMPLEMENT ADD_DIGIT(DONE)
-//  B IMPLEMENT CHOOSE_OPERATION
-//  C) IMPLEMENT  CLEAR
+//  B IMPLEMENT CHOOSE_OPERATION(DONE)
+//  C) IMPLEMENT  CLEAR(DONE)
 //  D) IMPLEMENT DELETE_DIGIT
-//  E) IMPLEMENT EVALUATE
+//  E) IMPLEMENT EVALUATE(ONGOING)
 
 //  2) Create CSS style sheet and style(DONE)
 //  2A) Figure out Button layout(DONE)
@@ -30,8 +30,15 @@ export const ACTIONS = {
 // Reducer function
 function reducer(state, { type, payload }) {
   switch (type) {
-    // Adding Digits
     case ACTIONS.ADD_DIGIT:
+      // Replaces new digit if a result is entered on the calculator.
+      if (state.overwrite) {
+        return {
+          ...state,
+          currentOperand: payload.digit,
+          overwrite: false,
+        };
+      }
       if (payload.digit === "0" && state.currentOperand === "0") return state;
       if (payload.digit === "." && state.currentOperand === ".") return state;
       return {
@@ -43,6 +50,14 @@ function reducer(state, { type, payload }) {
     case ACTIONS.CHOOSE_OPERATION:
       if (state.currentOperand == null && state.previousOperand == null) {
         return state;
+      }
+
+      //  rewritting the operand when one was clicked accidentally.
+      if (state.currentOperand == null) {
+        return {
+          ...state,
+          operation: payload.operation,
+        };
       }
 
       if (state.previousOperand == null) {
@@ -65,6 +80,47 @@ function reducer(state, { type, payload }) {
     //  Clearing the digits from the screen
     case ACTIONS.CLEAR:
       return {};
+
+    // Deleting a digit
+    case ACTIONS.DELETE_DIGIT:
+      // clear out everything
+      if (state.overwrite) {
+        return {
+          ...state,
+          overwrite: false,
+          currentOperand: null,
+        };
+      }
+      //  checking if an operand is there
+      if (state.currentOperand == null) return state;
+      // checking for one digit left IN THE OPERAND.
+      if (state.currentOperand === 1) {
+        return { ...state, currentOperand: null };
+      }
+      // deleting a digit
+      return {
+        ...state,
+        currentOperand: state.currentOperand.slice(0, -1),
+      };
+    //  Hitting the equal button
+    case ACTIONS.EVALUATE:
+      // checking if all the values are present
+      if (
+        state.operation == null ||
+        state.currentOperand == null ||
+        state.previousOperand == null
+      ) {
+        return state;
+      }
+
+      //  performing the evaluation
+      return {
+        ...state,
+        overwrite: true,
+        previousOperand: null,
+        operation: null,
+        currentOperand: evaluate(state),
+      };
   }
 }
 
@@ -124,7 +180,9 @@ function App() {
       >
         AC
       </button>
-      <button>DEL</button>
+      <button onClick={() => dispatch({ type: ACTIONS.DELETE_DIGIT })}>
+        DEL
+      </button>
       {/* NUMERICAL and OPERAND BUTTONS */}
       <OperationButton operation="÷" dispatch={dispatch} />
       <DigitButton digit="1" dispatch={dispatch} />
@@ -148,7 +206,13 @@ function App() {
       </OperationButton>
       <DigitButton digit="." dispatch={dispatch} />
       <DigitButton digit="0" dispatch={dispatch} />
-      <button className="span-two"> = </button>
+      <button
+        className="span-two"
+        onClick={() => dispatch({ type: ACTIONS.EVALUATE })}
+      >
+        {" "}
+        ={" "}
+      </button>
     </div>
   );
 }
