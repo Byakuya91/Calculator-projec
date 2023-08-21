@@ -30,8 +30,9 @@ export const ACTIONS = {
   CLEAR: " clear",
   DELETE_DIGIT: "delete-digit",
   EVALUATE: "evaluate",
-  PERCENTAGE: "percentage",
-  SQUARE_ROOT: "square-root",
+  // NEW ACTIONS
+  // PERCENTAGE: "percentage",
+  // SQUARE_ROOT: "square-root",
 };
 
 // Reducer function
@@ -59,8 +60,9 @@ function reducer(state, { type, payload }) {
 
 // Helper functions for each action type
 
-// Replaces new digit if a result is entered on the calculator.
+// Function to handle adding a digit to the current operand
 function handleAddDigit(state, digit) {
+  // If the overwrite flag is true, replace the current operand with the new digit
   if (state.overwrite) {
     return {
       ...state,
@@ -68,25 +70,36 @@ function handleAddDigit(state, digit) {
       overwrite: false,
     };
   }
+
+  // If the new digit is 0 and the current operand is already 0, no change is needed
   if (digit === "0" && state.currentOperand === "0") return state;
+
+  // If the new digit is a decimal point and the current operand already has one, no change is needed
   if (digit === "." && state.currentOperand === ".") return state;
+
+  // Otherwise, concatenate the new digit to the current operand, handling the case where it's initially empty
   return {
     ...state,
     currentOperand: `${state.currentOperand || ""}${digit}`,
   };
 }
 
-// Selecting the operation
+// Function to handle choosing an operation
 function handleChooseOperation(state, operation) {
+  // If both current and previous operands are null, no change is needed
   if (state.currentOperand == null && state.previousOperand == null) {
     return state;
   }
+
+  // If current operand is null, only update the operation
   if (state.currentOperand == null) {
     return {
       ...state,
       operation,
     };
   }
+
+  // If previous operand is null, set it to the current operand and clear current operand
   if (state.previousOperand == null) {
     return {
       ...state,
@@ -95,7 +108,8 @@ function handleChooseOperation(state, operation) {
       currentOperand: null,
     };
   }
-  // Default action if operand button is clicked and values are on the screen, do the operand.
+
+  // Default action when operand button is clicked and values are on the screen, perform the operation.
   return {
     ...state,
     previousOperand: evaluate(state),
@@ -104,8 +118,9 @@ function handleChooseOperation(state, operation) {
   };
 }
 
-// Clearing the digits from the screen
+// Function to handle deleting a digit from the current operand
 function handleDeleteDigit(state) {
+  // If overwrite flag is true, clear the current operand
   if (state.overwrite) {
     return {
       ...state,
@@ -113,18 +128,25 @@ function handleDeleteDigit(state) {
       currentOperand: null,
     };
   }
+
+  // If current operand is null, no change is needed
   if (state.currentOperand == null) return state;
+
+  // If current operand is a single digit, clear it
   if (state.currentOperand === 1) {
     return { ...state, currentOperand: null };
   }
+
+  // Remove the last digit from the current operand
   return {
     ...state,
     currentOperand: state.currentOperand.slice(0, -1),
   };
 }
 
-// Hitting the equal button
+// Function to handle evaluating the calculation
 function handleEvaluate(state) {
+  // If any of the necessary values are null, no change is needed
   if (
     state.operation == null ||
     state.currentOperand == null ||
@@ -132,6 +154,7 @@ function handleEvaluate(state) {
   ) {
     return state;
   }
+
   // Performing the evaluation
   return {
     ...state,
@@ -200,7 +223,12 @@ function formatOperand(operand) {
 }
 
 function App() {
-  // DEFINE REDUCER
+  // REDUCER HOOK:
+  // A) RECIPES(STATE)
+  // 1) currentOperand: The currently entered/ displayed operand.
+  // 2) previousOperand: The operand entered before selecting an operation.
+  // 1) OPERATION: The currently entered/ displayed operand.
+
   const [{ currentOperand, previousOperand, operation }, dispatch] = useReducer(
     reducer,
     {}
