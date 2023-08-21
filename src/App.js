@@ -12,6 +12,8 @@ import { OperationButton } from "./Components/OperationButton";
 //  C) IMPLEMENT  CLEAR(DONE)
 //  D) IMPLEMENT DELETE_DIGIT(DONE)
 //  E) IMPLEMENT EVALUATE(DONE)
+//  F) IMPLEMENT PERCENTAGE(ONGOING)
+//  H) IMPLEMENT SQUARE ROOT(ONGOING)
 
 //  2) Create CSS style sheet and style(DONE)
 //  2A) Figure out Button layout(DONE)
@@ -28,6 +30,8 @@ export const ACTIONS = {
   CLEAR: " clear",
   DELETE_DIGIT: "delete-digit",
   EVALUATE: "evaluate",
+  PERCENTAGE: "percentage",
+  SQUARE_ROOT: "square-root",
 };
 
 // Reducer function
@@ -144,9 +148,19 @@ function evaluate({ currentOperand, previousOperand, operation }) {
   const prev = parseFloat(previousOperand);
   const current = parseFloat(currentOperand);
 
+  // Logging the values for debugging
+  console.log("Operation:", operation);
+  console.log("Previous Operand:", prev);
+  console.log("Current Operand:", current);
+
   // Checking if the values don't exist
   if (isNaN(prev) || isNaN(current)) {
     return "";
+  }
+
+  // Handling division by zero
+  if (operation === "÷" && current === 0) {
+    return "undefined"; // or "error" or any custom message you prefer
   }
 
   // Getting the computed value
@@ -223,6 +237,7 @@ function App() {
       <button onClick={deleteHandler}>DEL</button>
       {/* NUMERICAL and OPERAND BUTTONS */}
       <OperationButton operation="÷" dispatch={dispatch} />
+      {/* <OperationButton operation="%" dispatch={dispatch} /> */}
       <DigitButton digit="1" dispatch={dispatch} />
       <DigitButton digit="2" dispatch={dispatch} />
       <DigitButton digit="3" dispatch={dispatch} />
