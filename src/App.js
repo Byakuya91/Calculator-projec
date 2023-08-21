@@ -10,15 +10,18 @@ import { OperationButton } from "./Components/OperationButton";
 //  A) IMPLEMENT ADD_DIGIT(DONE)
 //  B IMPLEMENT CHOOSE_OPERATION(DONE)
 //  C) IMPLEMENT  CLEAR(DONE)
-//  D) IMPLEMENT DELETE_DIGIT
-//  E) IMPLEMENT EVALUATE(ONGOING)
+//  D) IMPLEMENT DELETE_DIGIT(DONE)
+//  E) IMPLEMENT EVALUATE(DONE)
 
 //  2) Create CSS style sheet and style(DONE)
 //  2A) Figure out Button layout(DONE)
 // 2B) Figure out Screen layout(DONE)
 // 2C) Figure out Calculator layout(DONE)
 
-//  Global variable for Actions for Caculator functionality and useReducer
+// 3) Refactoring Code
+// 3A) Implemented Helper functions to clean up the Reducer and make it easier to read(DONE)
+
+// Global variable for Actions for Calculator functionality and useReducer
 export const ACTIONS = {
   ADD_DIGIT: "add-digit",
   CHOOSE_OPERATION: "choose-operation",
@@ -31,158 +34,193 @@ export const ACTIONS = {
 function reducer(state, { type, payload }) {
   switch (type) {
     case ACTIONS.ADD_DIGIT:
-      // Replaces new digit if a result is entered on the calculator.
-      if (state.overwrite) {
-        return {
-          ...state,
-          currentOperand: payload.digit,
-          overwrite: false,
-        };
-      }
-      if (payload.digit === "0" && state.currentOperand === "0") return state;
-      if (payload.digit === "." && state.currentOperand === ".") return state;
-      return {
-        ...state,
-        currentOperand: `${state.currentOperand || ""}${payload.digit}`,
-      };
+      return handleAddDigit(state, payload.digit);
 
-    // selecting the operation
     case ACTIONS.CHOOSE_OPERATION:
-      if (state.currentOperand == null && state.previousOperand == null) {
-        return state;
-      }
+      return handleChooseOperation(state, payload.operation);
 
-      //  rewritting the operand when one was clicked accidentally.
-      if (state.currentOperand == null) {
-        return {
-          ...state,
-          operation: payload.operation,
-        };
-      }
-
-      if (state.previousOperand == null) {
-        return {
-          ...state,
-          operation: payload.operation,
-          previousOperand: state.currentOperand,
-          currentOperand: null,
-        };
-      }
-
-      // default action if operand button is clicked and values are on the screen, do the operand.
-      return {
-        ...state,
-        previousOperand: evaluate(state),
-        operation: payload.operation,
-        currentOperand: null,
-      };
-
-    //  Clearing the digits from the screen
     case ACTIONS.CLEAR:
       return {};
 
-    // Deleting a digit
     case ACTIONS.DELETE_DIGIT:
-      // clear out everything
-      if (state.overwrite) {
-        return {
-          ...state,
-          overwrite: false,
-          currentOperand: null,
-        };
-      }
-      //  checking if an operand is there
-      if (state.currentOperand == null) return state;
-      // checking for one digit left IN THE OPERAND.
-      if (state.currentOperand === 1) {
-        return { ...state, currentOperand: null };
-      }
-      // deleting a digit
-      return {
-        ...state,
-        currentOperand: state.currentOperand.slice(0, -1),
-      };
-    //  Hitting the equal button
-    case ACTIONS.EVALUATE:
-      // checking if all the values are present
-      if (
-        state.operation == null ||
-        state.currentOperand == null ||
-        state.previousOperand == null
-      ) {
-        return state;
-      }
+      return handleDeleteDigit(state);
 
-      //  performing the evaluation
-      return {
-        ...state,
-        overwrite: true,
-        previousOperand: null,
-        operation: null,
-        currentOperand: evaluate(state),
-      };
+    case ACTIONS.EVALUATE:
+      return handleEvaluate(state);
+
+    default:
+      return state; // or throw an error if you want to catch unexpected cases
   }
 }
 
-// function to evaluate the calculation of the calculator
+// Helper functions for each action type
+
+// Replaces new digit if a result is entered on the calculator.
+function handleAddDigit(state, digit) {
+  if (state.overwrite) {
+    return {
+      ...state,
+      currentOperand: digit,
+      overwrite: false,
+    };
+  }
+  if (digit === "0" && state.currentOperand === "0") return state;
+  if (digit === "." && state.currentOperand === ".") return state;
+  return {
+    ...state,
+    currentOperand: `${state.currentOperand || ""}${digit}`,
+  };
+}
+
+// Selecting the operation
+function handleChooseOperation(state, operation) {
+  if (state.currentOperand == null && state.previousOperand == null) {
+    return state;
+  }
+  if (state.currentOperand == null) {
+    return {
+      ...state,
+      operation,
+    };
+  }
+  if (state.previousOperand == null) {
+    return {
+      ...state,
+      operation,
+      previousOperand: state.currentOperand,
+      currentOperand: null,
+    };
+  }
+  // Default action if operand button is clicked and values are on the screen, do the operand.
+  return {
+    ...state,
+    previousOperand: evaluate(state),
+    operation,
+    currentOperand: null,
+  };
+}
+
+// Clearing the digits from the screen
+function handleDeleteDigit(state) {
+  if (state.overwrite) {
+    return {
+      ...state,
+      overwrite: false,
+      currentOperand: null,
+    };
+  }
+  if (state.currentOperand == null) return state;
+  if (state.currentOperand === 1) {
+    return { ...state, currentOperand: null };
+  }
+  return {
+    ...state,
+    currentOperand: state.currentOperand.slice(0, -1),
+  };
+}
+
+// Hitting the equal button
+function handleEvaluate(state) {
+  if (
+    state.operation == null ||
+    state.currentOperand == null ||
+    state.previousOperand == null
+  ) {
+    return state;
+  }
+  // Performing the evaluation
+  return {
+    ...state,
+    overwrite: true,
+    previousOperand: null,
+    operation: null,
+    currentOperand: evaluate(state),
+  };
+}
+
+// Function to evaluate the calculation of the calculator
 function evaluate({ currentOperand, previousOperand, operation }) {
-  // converting the strings to numbers
+  // Converting the strings to numbers
   const prev = parseFloat(previousOperand);
   const current = parseFloat(currentOperand);
 
-  // checking if the values don't exist
-  if (isNaN(prev) || isNaN(current)) return "";
-
-  // getting the computed value
-  let computation = "";
-
-  // When the buttons are pushed
-  switch (operation) {
-    case "+":
-      computation = prev + current;
-      break;
-    case "-":
-      computation = prev - current;
-      break;
-    case "*":
-      computation = prev * current;
-      break;
-    case "÷":
-      computation = prev / current;
-      break;
+  // Checking if the values don't exist
+  if (isNaN(prev) || isNaN(current)) {
+    return "";
   }
 
-  //  return the value
-  return computation.toString();
+  // Getting the computed value
+  switch (operation) {
+    case "+":
+      // Addition
+      return (prev + current).toString();
+    case "-":
+      // Subtraction
+      return (prev - current).toString();
+    case "*":
+      // Multiplication
+      return (prev * current).toString();
+    case "÷":
+      // Division
+      return (prev / current).toString();
+    default:
+      // Default case for unexpected operation
+      return "";
+  }
+}
+
+// Formatting the Digits
+const INTEGER_FORMATTER = new Intl.NumberFormat("en-us", {
+  maximumFractionDigits: 0,
+});
+
+function formatOperand(operand) {
+  // checking for an Operand
+  if (operand == null) return;
+  // grabbing integer and decimal portions of the numbers
+  const [integer, decimal] = operand.split(".");
+  // if there is NO decimal on the number
+  if (decimal == null) return INTEGER_FORMATTER.format(integer);
+  // return the decimal portion as well
+  return `${INTEGER_FORMATTER.format(integer)}.${decimal}`;
 }
 
 function App() {
-  //   DEFINE REDUCER
+  // DEFINE REDUCER
   const [{ currentOperand, previousOperand, operation }, dispatch] = useReducer(
     reducer,
     {}
   );
 
+  // Dispatch functions
+  const clearHandler = () => {
+    dispatch({ type: ACTIONS.CLEAR });
+  };
+
+  const deleteHandler = () => {
+    dispatch({ type: ACTIONS.DELETE_DIGIT });
+  };
+
+  const evaluateHandler = () => {
+    dispatch({ type: ACTIONS.EVALUATE });
+  };
+
   return (
-    //  Output: TOP OF THE CALCULATOR
+    // Output: TOP OF THE CALCULATOR
     <div className="calculator-grid">
       <div className="output">
+        {/* Display previous operand, operation, and format */}
         <div className="previous-operand">
-          {" "}
-          {previousOperand} {operation}{" "}
+          {formatOperand(previousOperand)} {operation}
         </div>
-        <div className="current-operand">{currentOperand} </div>
+        {/* Display current operand and format */}
+        <div className="current-operand">{formatOperand(currentOperand)}</div>
       </div>
-      {/* TOP BUTTONS  */}
-      <button
-        className="span-two"
-        onClick={() => dispatch({ type: ACTIONS.CLEAR })}
-      >
+      {/* TOP BUTTONS */}
+      <button className="span-two" onClick={clearHandler}>
         AC
       </button>
-      <button onClick={() => dispatch({ type: ACTIONS.DELETE_DIGIT })}>
-        DEL
-      </button>
+      <button onClick={deleteHandler}>DEL</button>
       {/* NUMERICAL and OPERAND BUTTONS */}
       <OperationButton operation="÷" dispatch={dispatch} />
       <DigitButton digit="1" dispatch={dispatch} />
@@ -206,10 +244,7 @@ function App() {
       </OperationButton>
       <DigitButton digit="." dispatch={dispatch} />
       <DigitButton digit="0" dispatch={dispatch} />
-      <button
-        className="span-two"
-        onClick={() => dispatch({ type: ACTIONS.EVALUATE })}
-      >
+      <button className="span-two" onClick={evaluateHandler}>
         {" "}
         ={" "}
       </button>
