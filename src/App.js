@@ -23,7 +23,7 @@ import { OperationButton } from "./Components/OperationButton";
 // 3) Refactoring Code
 // 3A) Implemented Helper functions to clean up the Reducer and make it easier to read(DONE)
 
-// Global variable for Actions for Calculator functionality and useReducer
+// (RECIPES) Global variable for Actions for Calculator functionality and useReducer
 export const ACTIONS = {
   ADD_DIGIT: "add-digit",
   CHOOSE_OPERATION: "choose-operation",
@@ -35,7 +35,7 @@ export const ACTIONS = {
   // SQUARE_ROOT: "square-root",
 };
 
-// Reducer function
+// (ORDERS)Reducer function
 function reducer(state, { type, payload }) {
   switch (type) {
     case ACTIONS.ADD_DIGIT:
@@ -60,9 +60,9 @@ function reducer(state, { type, payload }) {
 
 // Helper functions for each action type
 
-// Function to handle adding a digit to the current operand
+// Function to handle adding a digit to the current operand.
 function handleAddDigit(state, digit) {
-  // If the overwrite flag is true, replace the current operand with the new digit
+  // If the overwrite flag is true, replace the current operand with the new digit.
   if (state.overwrite) {
     return {
       ...state,
@@ -71,13 +71,13 @@ function handleAddDigit(state, digit) {
     };
   }
 
-  // If the new digit is 0 and the current operand is already 0, no change is needed
+  // If the new digit is 0 and the current operand is already 0, no change is needed.
   if (digit === "0" && state.currentOperand === "0") return state;
 
-  // If the new digit is a decimal point and the current operand already has one, no change is needed
+  // If the new digit is a decimal point and the current operand already has one, no change is needed.
   if (digit === "." && state.currentOperand === ".") return state;
 
-  // Otherwise, concatenate the new digit to the current operand, handling the case where it's initially empty
+  // Otherwise, concatenate the new digit to the current operand, handling the case where it's initially empty.
   return {
     ...state,
     currentOperand: `${state.currentOperand || ""}${digit}`,
@@ -224,7 +224,7 @@ function formatOperand(operand) {
 
 function App() {
   // REDUCER HOOK:
-  // A) RECIPES(STATE)
+  // A) INGREDIENTS(STATE)
   // 1) currentOperand: The currently entered/ displayed operand.
   // 2) previousOperand: The operand entered before selecting an operation.
   // 1) OPERATION: The currently entered/ displayed operand.
@@ -234,7 +234,7 @@ function App() {
     {}
   );
 
-  // Dispatch functions
+  // Dispatch handler functions
   const clearHandler = () => {
     dispatch({ type: ACTIONS.CLEAR });
   };
