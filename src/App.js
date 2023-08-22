@@ -6,16 +6,7 @@ import "./styles.css";
 // Component Imports
 import { DigitButton } from "./Components/DigitButton";
 import { OperationButton } from "./Components/OperationButton";
-import {
-  ACTIONS,
-  reducer,
-  handleAddDigit,
-  handleChooseOperation,
-  handleDeleteDigit,
-  handleEvaluate,
-  evaluate,
-  formatOperand,
-} from "./Reducers/calculatorReducer";
+import { ACTIONS, reducer, formatOperand } from "./Reducers/calculatorReducer";
 
 function App() {
   // REDUCER HOOK:

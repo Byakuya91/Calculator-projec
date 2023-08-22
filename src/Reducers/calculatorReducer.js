@@ -36,7 +36,7 @@ export function reducer(state, { type, payload }) {
 // Helper functions for each action type
 
 // Function to handle adding a digit to the current operand.
-export function handleAddDigit(state, digit) {
+export const handleAddDigit = (state, digit) => {
   // If the overwrite flag is true, replace the current operand with the new digit.
   if (state.overwrite) {
     return {
@@ -57,10 +57,10 @@ export function handleAddDigit(state, digit) {
     ...state,
     currentOperand: `${state.currentOperand || ""}${digit}`,
   };
-}
+};
 
 // Function to handle choosing an operation
-export function handleChooseOperation(state, operation) {
+export const handleChooseOperation = (state, operation) => {
   // If both current and previous operands are null, no change is needed
   if (state.currentOperand == null && state.previousOperand == null) {
     return state;
@@ -91,10 +91,10 @@ export function handleChooseOperation(state, operation) {
     operation,
     currentOperand: null,
   };
-}
+};
 
 // Function to handle deleting a digit from the current operand
-export function handleDeleteDigit(state) {
+export const handleDeleteDigit = (state) => {
   // If overwrite flag is true, clear the current operand
   if (state.overwrite) {
     return {
@@ -117,10 +117,10 @@ export function handleDeleteDigit(state) {
     ...state,
     currentOperand: state.currentOperand.slice(0, -1),
   };
-}
+};
 
 // Function to handle evaluating the calculation
-export function handleEvaluate(state) {
+const handleEvaluate = (state) => {
   // If any of the necessary values are null, no change is needed
   if (
     state.operation == null ||
@@ -138,10 +138,10 @@ export function handleEvaluate(state) {
     operation: null,
     currentOperand: evaluate(state),
   };
-}
+};
 
 // Function to evaluate the calculation of the calculator
-export function evaluate({ currentOperand, previousOperand, operation }) {
+export const evaluate = ({ currentOperand, previousOperand, operation }) => {
   // Converting the strings to numbers
   const prev = parseFloat(previousOperand);
   const current = parseFloat(currentOperand);
@@ -179,14 +179,14 @@ export function evaluate({ currentOperand, previousOperand, operation }) {
       // Default case for unexpected operation
       return "";
   }
-}
+};
 
 // Formatting the Digits
 const INTEGER_FORMATTER = new Intl.NumberFormat("en-us", {
   maximumFractionDigits: 0,
 });
 
-export function formatOperand(operand) {
+export const formatOperand = (operand) => {
   // checking for an Operand
   if (operand == null) return;
   // grabbing integer and decimal portions of the numbers
@@ -195,4 +195,4 @@ export function formatOperand(operand) {
   if (decimal == null) return INTEGER_FORMATTER.format(integer);
   // return the decimal portion as well
   return `${INTEGER_FORMATTER.format(integer)}.${decimal}`;
-}
+};
