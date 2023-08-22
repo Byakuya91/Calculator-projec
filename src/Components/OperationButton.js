@@ -6,7 +6,9 @@ import { ACTIONS } from "../Reducers/calculatorReducer";
 export const OperationButton = ({ dispatch, operation }) => (
   <button
     onClick={() =>
-      dispatch({ type: ACTIONS.CHOOSE_OPERATION, payload: { operation } })
+      operation === "%"
+        ? dispatch({ type: ACTIONS.PERCENTAGE })
+        : dispatch({ type: ACTIONS.CHOOSE_OPERATION, payload: { operation } })
     }
   >
     {operation}

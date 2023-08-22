@@ -6,7 +6,7 @@ export const ACTIONS = {
   DELETE_DIGIT: "delete-digit",
   EVALUATE: "evaluate",
   // NEW ACTIONS
-  // PERCENTAGE: "percentage",
+  PERCENTAGE: "percentage",
   // SQUARE_ROOT: "square-root",
 };
 
@@ -27,6 +27,9 @@ export function reducer(state, { type, payload }) {
 
     case ACTIONS.EVALUATE:
       return handleEvaluate(state);
+
+    case ACTIONS.PERCENTAGE:
+      return handlePercent(state);
 
     default:
       return state; // or throw an error if you want to catch unexpected cases
@@ -119,8 +122,25 @@ export const handleDeleteDigit = (state) => {
   };
 };
 
+// Function to handle calculating percentage
+export const handlePercent = (state) => {
+  // Check if the current operand is null
+  if (state.currentOperand == null) {
+    return state;
+  }
+
+  // Calculate the percentage value by dividing current Operand by 100
+  const percentageValue = parseFloat(state.currentOperand) / 100;
+
+  // Return the state with the updated current operand set to the percentage
+  return {
+    ...state,
+    currentOperand: percentageValue.toString(),
+  };
+};
+
 // Function to handle evaluating the calculation
-const handleEvaluate = (state) => {
+export const handleEvaluate = (state) => {
   // If any of the necessary values are null, no change is needed
   if (
     state.operation == null ||
