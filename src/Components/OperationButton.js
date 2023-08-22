@@ -1,6 +1,7 @@
 // IMPORTS
 import React from "react";
-import { ACTIONS } from "../App";
+// Import ACTIONS from the correct file path
+import { ACTIONS } from "../Reducers/calculatorReducer";
 
 export const OperationButton = ({ dispatch, operation }) => (
   <button
